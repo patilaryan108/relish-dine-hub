@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { useCart } from '@/contexts/CartContext';
 
 // Define types
 interface MenuItem {
@@ -83,6 +83,7 @@ const Menu: React.FC = () => {
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
+  const { addToCart } = useCart();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -122,6 +123,16 @@ const Menu: React.FC = () => {
     });
     
     setIsDialogOpen(false);
+  };
+
+  const handleAddToOrder = (item: MenuItem) => {
+    addToCart({
+      id: item.id,
+      name: item.name,
+      price: item.price
+    });
+    
+    toast.success(`Added ${item.name} to your order`);
   };
 
   const filteredItems = activeCategory === 'all' 
@@ -272,6 +283,7 @@ const Menu: React.FC = () => {
                     variant="outline" 
                     className="border-gold text-gold hover:bg-gold hover:text-white"
                     size="sm"
+                    onClick={() => handleAddToOrder(item)}
                   >
                     <Utensils className="h-4 w-4 mr-1" /> Add to Order
                   </Button>

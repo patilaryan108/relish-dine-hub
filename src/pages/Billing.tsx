@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from 'sonner';
-import { CreditCard, FileText, Trash2 } from 'lucide-react';
+import { CreditCard, FileText, Trash2, ShoppingCart } from 'lucide-react';
+import { useCart } from '@/contexts/CartContext';
 
 interface OrderItem {
   id: string;
@@ -26,7 +27,7 @@ const menuItems = [
 ];
 
 const Billing: React.FC = () => {
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const { cartItems, addToCart, removeFromCart, updateQuantity, clearCart } = useCart();
   const [selectedItem, setSelectedItem] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [customerName, setCustomerName] = useState<string>('');
@@ -34,7 +35,7 @@ const Billing: React.FC = () => {
   const [discount, setDiscount] = useState<number>(0);
   const [paymentMethod, setPaymentMethod] = useState<string>('card');
 
-  const subtotal = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const discountAmount = (subtotal * discount) / 100;
   const tax = (subtotal - discountAmount) * 0.0825; // 8.25% tax
   const total = subtotal - discountAmount + tax;
@@ -57,21 +58,13 @@ const Billing: React.FC = () => {
       return;
     }
     
-    const existingItem = orderItems.find(item => item.id === selectedItem);
-    
-    if (existingItem) {
-      setOrderItems(orderItems.map(item => 
-        item.id === selectedItem 
-          ? { ...item, quantity: item.quantity + quantity } 
-          : item
-      ));
-    } else {
-      setOrderItems([...orderItems, {
+    // Add the item to cart with specified quantity
+    for (let i = 0; i < quantity; i++) {
+      addToCart({
         id: menuItem.id,
         name: menuItem.name,
-        price: menuItem.price,
-        quantity
-      }]);
+        price: menuItem.price
+      });
     }
     
     toast.success(`Added ${quantity} × ${menuItem.name}`);
@@ -80,11 +73,19 @@ const Billing: React.FC = () => {
   };
   
   const handleRemoveItem = (id: string) => {
-    setOrderItems(orderItems.filter(item => item.id !== id));
+    removeFromCart(id);
+  };
+
+  const handleUpdateQuantity = (id: string, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      removeFromCart(id);
+    } else {
+      updateQuantity(id, newQuantity);
+    }
   };
   
   const handleGenerateBill = () => {
-    if (orderItems.length === 0) {
+    if (cartItems.length === 0) {
       toast.error("Please add items to the bill");
       return;
     }
@@ -105,7 +106,7 @@ const Billing: React.FC = () => {
     console.log({
       customerName,
       tableNumber,
-      orderItems,
+      orderItems: cartItems,
       subtotal,
       discount,
       discountAmount,
@@ -116,7 +117,7 @@ const Billing: React.FC = () => {
   };
   
   const handleClearBill = () => {
-    setOrderItems([]);
+    clearCart();
     setCustomerName('');
     setTableNumber('');
     setDiscount(0);
@@ -177,7 +178,10 @@ const Billing: React.FC = () => {
         <div className="md:col-span-2">
           <Card className="h-full">
             <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b">
-              <CardTitle className="font-playfair text-xl">Order Summary</CardTitle>
+              <CardTitle className="font-playfair text-xl flex items-center">
+                <ShoppingCart className="mr-2 h-5 w-5" /> 
+                Order Summary {cartItems.length > 0 && `(${cartItems.length})`}
+              </CardTitle>
               <div className="flex space-x-2 mt-2 sm:mt-0">
                 <Button variant="outline" onClick={handleClearBill} size="sm" className="text-gray-600">
                   <Trash2 className="h-4 w-4 mr-1" /> Clear
@@ -254,12 +258,32 @@ const Billing: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {orderItems.length > 0 ? (
-                      orderItems.map(item => (
+                    {cartItems.length > 0 ? (
+                      cartItems.map(item => (
                         <TableRow key={item.id}>
                           <TableCell className="font-medium">{item.name}</TableCell>
                           <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
-                          <TableCell className="text-center">{item.quantity}</TableCell>
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-gray-500"
+                                onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                              >
+                                -
+                              </Button>
+                              <span className="mx-2">{item.quantity}</span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-gray-500"
+                                onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                              >
+                                +
+                              </Button>
+                            </div>
+                          </TableCell>
                           <TableCell className="text-right">${(item.price * item.quantity).toFixed(2)}</TableCell>
                           <TableCell>
                             <Button 
