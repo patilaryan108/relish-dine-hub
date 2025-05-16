@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Utensils, Coffee, IceCreamBowl, Droplet, Tea } from 'lucide-react';
+import { PlusCircle, Utensils, Coffee, IceCreamBowl, Droplet } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +19,17 @@ interface MenuItem {
   price: number;
   category: string;
   image: string;
+}
+
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  role: 'customer' | 'staff' | 'manager';
+  preferences?: {
+    favoriteItems?: string[];
+    dietaryRestrictions?: string[];
+  };
 }
 
 const defaultMenuItems: MenuItem[] = [
@@ -139,6 +149,39 @@ const defaultMenuItems: MenuItem[] = [
     price: 5.99,
     category: 'beverages',
     image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?q=80&w=1500&auto=format'
+  },
+  // Adding more tea and coffee options
+  {
+    id: '15',
+    name: 'Green Tea',
+    description: 'Refreshing green tea with antioxidants',
+    price: 3.49,
+    category: 'beverages',
+    image: 'https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?q=80&w=1500&auto=format'
+  },
+  {
+    id: '16',
+    name: 'Lemon Tea',
+    description: 'Fresh tea with lemon and honey',
+    price: 3.49,
+    category: 'beverages',
+    image: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?q=80&w=1500&auto=format'
+  },
+  {
+    id: '17',
+    name: 'Espresso',
+    description: 'Strong concentrated coffee served in a small cup',
+    price: 3.99,
+    category: 'beverages',
+    image: 'https://images.unsplash.com/photo-1510591509098-f4b5d5f0f01a?q=80&w=1500&auto=format'
+  },
+  {
+    id: '18',
+    name: 'Cappuccino',
+    description: 'Coffee with equal parts of espresso, steamed milk, and milk foam',
+    price: 4.79,
+    category: 'beverages',
+    image: 'https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=1500&auto=format'
   }
 ];
 
@@ -154,6 +197,32 @@ const Menu: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
   const { addToCart } = useCart();
+  // Add state for users
+  const [users, setUsers] = useState<UserData[]>([
+    {
+      id: '1',
+      name: 'Guest User',
+      email: 'guest@example.com',
+      role: 'customer'
+    },
+    {
+      id: '2',
+      name: 'Staff Member',
+      email: 'staff@karunadu.com',
+      role: 'staff'
+    },
+    {
+      id: '3',
+      name: 'Restaurant Manager',
+      email: 'manager@karunadu.com',
+      role: 'manager',
+      preferences: {
+        favoriteItems: ['1', '11'],
+        dietaryRestrictions: []
+      }
+    }
+  ]);
+  const [currentUser, setCurrentUser] = useState<UserData>(users[0]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -183,6 +252,23 @@ const Menu: React.FC = () => {
     setMenuItems(prev => [...prev, createdItem]);
     toast.success("New menu item added!");
     
+    // Save to currentUser favorites if they're a manager
+    if (currentUser.role === 'manager') {
+      const updatedUsers = users.map(user => {
+        if (user.id === currentUser.id) {
+          return {
+            ...user,
+            preferences: {
+              ...user.preferences,
+              favoriteItems: [...(user.preferences?.favoriteItems || []), id]
+            }
+          };
+        }
+        return user;
+      });
+      setUsers(updatedUsers);
+    }
+    
     // Reset form
     setNewItem({
       name: '',
@@ -203,6 +289,15 @@ const Menu: React.FC = () => {
     });
     
     toast.success(`Added ${item.name} to your order`);
+  };
+
+  // Add function to switch users
+  const switchUser = (userId: string) => {
+    const user = users.find(u => u.id === userId);
+    if (user) {
+      setCurrentUser(user);
+      toast.success(`Switched to ${user.name}`);
+    }
   };
 
   const filteredItems = activeCategory === 'all' 
@@ -232,99 +327,119 @@ const Menu: React.FC = () => {
           <p className="text-gray-600 mt-2">Explore our authentic South Indian cuisine</p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="mt-4 md:mt-0 bg-gold hover:bg-gold-light text-white">
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Menu Item
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle className="font-playfair text-xl">Add New Menu Item</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Item Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  placeholder="Enter item name"
-                  value={newItem.name}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  placeholder="Describe the menu item"
-                  value={newItem.description}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="price">Price ($)</Label>
-                <Input
-                  id="price"
-                  name="price"
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  placeholder="0.00"
-                  value={newItem.price || ''}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Select 
-                  defaultValue={newItem.category}
-                  onValueChange={handleSelectChange}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="southIndian">South Indian</SelectItem>
-                    <SelectItem value="iceCream">Ice Cream</SelectItem>
-                    <SelectItem value="beverages">Beverages</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="image">Image URL (Optional)</Label>
-                <Input
-                  id="image"
-                  name="image"
-                  placeholder="https://example.com/image.jpg"
-                  value={newItem.image}
-                  onChange={handleInputChange}
-                />
-              </div>
-              
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setIsDialogOpen(false)}
-                >
-                  Cancel
+        <div className="flex items-center space-x-4 mt-4 md:mt-0">
+          <Select 
+            value={currentUser.id}
+            onValueChange={switchUser}
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Select user" />
+            </SelectTrigger>
+            <SelectContent>
+              {users.map((user) => (
+                <SelectItem key={user.id} value={user.id}>
+                  {user.name} ({user.role})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          {currentUser.role === 'manager' && (
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-gold hover:bg-gold-light text-white">
+                  <PlusCircle className="mr-2 h-4 w-4" /> Add Menu Item
                 </Button>
-                <Button type="submit" className="bg-gold hover:bg-gold-light text-white">
-                  Add Item
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle className="font-playfair text-xl">Add New Menu Item</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Item Name</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      placeholder="Enter item name"
+                      value={newItem.name}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      name="description"
+                      placeholder="Describe the menu item"
+                      value={newItem.description}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="price">Price ($)</Label>
+                    <Input
+                      id="price"
+                      name="price"
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={newItem.price || ''}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="category">Category</Label>
+                    <Select 
+                      defaultValue={newItem.category}
+                      onValueChange={handleSelectChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="southIndian">South Indian</SelectItem>
+                        <SelectItem value="iceCream">Ice Cream</SelectItem>
+                        <SelectItem value="beverages">Beverages</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="image">Image URL (Optional)</Label>
+                    <Input
+                      id="image"
+                      name="image"
+                      placeholder="https://example.com/image.jpg"
+                      value={newItem.image}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  
+                  <div className="flex justify-end space-x-2 pt-4">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setIsDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" className="bg-gold hover:bg-gold-light text-white">
+                      Add Item
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
       </div>
       
       <Tabs defaultValue="all" className="w-full" onValueChange={setActiveCategory}>
