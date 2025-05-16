@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Utensils } from 'lucide-react';
+import { PlusCircle, Utensils, Coffee, IceCreamBowl, Droplet, Tea } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,54 +23,123 @@ interface MenuItem {
 }
 
 const defaultMenuItems: MenuItem[] = [
+  // South Indian Items
   {
     id: '1',
-    name: 'Grilled Salmon',
-    description: 'Fresh Atlantic salmon, grilled to perfection with lemon herb butter',
-    price: 24.99,
-    category: 'main',
-    image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80'
+    name: 'Masala Dosa',
+    description: 'Crispy rice crepe filled with spiced potato filling, served with sambar and chutney',
+    price: 8.99,
+    category: 'southIndian',
+    image: 'https://images.unsplash.com/photo-1668236534235-1d76ffc88047?q=80&w=1500&auto=format'
   },
   {
     id: '2',
-    name: 'Caprese Salad',
-    description: 'Fresh mozzarella, tomatoes, and basil leaves drizzled with balsamic glaze',
-    price: 12.99,
-    category: 'starters',
-    image: 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80'
+    name: 'Idli Sambar',
+    description: 'Steamed rice cakes served with lentil soup and coconut chutney',
+    price: 7.99,
+    category: 'southIndian',
+    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?q=80&w=1500&auto=format'
   },
   {
-    id: '3', 
-    name: 'Chocolate Lava Cake',
-    description: 'Warm chocolate cake with a molten chocolate center, served with vanilla ice cream',
-    price: 9.99,
-    category: 'desserts',
-    image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80'
+    id: '3',
+    name: 'Puri Bhaji',
+    description: 'Deep-fried bread served with spiced potato curry',
+    price: 6.99,
+    category: 'southIndian',
+    image: 'https://images.unsplash.com/photo-1606724546338-24a0468c7cc7?q=80&w=1500&auto=format'
   },
   {
     id: '4',
-    name: 'Filet Mignon',
-    description: '8oz premium beef tenderloin steak, served with truffle mashed potatoes',
-    price: 34.99,
-    category: 'main',
-    image: 'https://images.unsplash.com/photo-1504973960431-1c467e159aa4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80'
+    name: 'South Indian Thali',
+    description: 'Complete meal with rice, sambar, rasam, vegetables, curd and dessert',
+    price: 14.99,
+    category: 'southIndian',
+    image: 'https://images.unsplash.com/photo-1627662055115-0c7cc67a610b?q=80&w=1500&auto=format'
   },
   {
     id: '5',
-    name: 'Shrimp Cocktail',
-    description: 'Chilled jumbo shrimp served with house cocktail sauce',
-    price: 16.99,
-    category: 'starters',
-    image: 'https://images.unsplash.com/photo-1565280654386-361675079b9f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80'
+    name: 'Medu Vada',
+    description: 'Crispy savory donuts made from urad dal, served with sambar and chutney',
+    price: 5.99,
+    category: 'southIndian',
+    image: 'https://images.unsplash.com/photo-1630383249896-24c1129946b3?q=80&w=1500&auto=format'
   },
   {
     id: '6',
-    name: 'Crème Brûlée',
-    description: 'Classic French custard with caramelized sugar top',
+    name: 'Uttapam',
+    description: 'Thick pancake topped with onions, tomatoes, and chilies',
     price: 8.99,
-    category: 'desserts',
-    image: 'https://images.unsplash.com/photo-1505253758473-96b7015fcd40?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80'
+    category: 'southIndian',
+    image: 'https://images.unsplash.com/photo-1541833000669-8dce2195ca20?q=80&w=1500&auto=format'
   },
+  
+  // Ice Cream Section
+  {
+    id: '7',
+    name: 'Vanilla Ice Cream',
+    description: 'Classic vanilla bean ice cream served in a waffle cone',
+    price: 4.99,
+    category: 'iceCream',
+    image: 'https://images.unsplash.com/photo-1570197788417-0e82375c9371?q=80&w=1500&auto=format'
+  },
+  {
+    id: '8',
+    name: 'Chocolate Sundae',
+    description: 'Rich chocolate ice cream with hot fudge, whipped cream, and a cherry',
+    price: 6.99,
+    category: 'iceCream',
+    image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?q=80&w=1500&auto=format'
+  },
+  {
+    id: '9',
+    name: 'Mango Kulfi',
+    description: 'Traditional Indian frozen dessert made with condensed milk and mango',
+    price: 5.99,
+    category: 'iceCream',
+    image: 'https://images.unsplash.com/photo-1621303837174-89787a7d4729?q=80&w=1500&auto=format'
+  },
+  
+  // Beverages
+  {
+    id: '10',
+    name: 'Masala Chai',
+    description: 'Spiced Indian tea with milk',
+    price: 3.99,
+    category: 'beverages',
+    image: 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?q=80&w=1500&auto=format'
+  },
+  {
+    id: '11',
+    name: 'South Indian Filter Coffee',
+    description: 'Strong coffee brewed with chicory and served with milk',
+    price: 4.99,
+    category: 'beverages',
+    image: 'https://images.unsplash.com/photo-1605158124569-51d5dc75d0ef?q=80&w=1500&auto=format'
+  },
+  {
+    id: '12',
+    name: 'Mango Lassi',
+    description: 'Refreshing yogurt drink with mango pulp',
+    price: 4.99,
+    category: 'beverages',
+    image: 'https://images.unsplash.com/photo-1626202858063-107bf2b95d32?q=80&w=1500&auto=format'
+  },
+  {
+    id: '13',
+    name: 'Fresh Lime Soda',
+    description: 'Refreshing lime juice with soda water, served sweet, salty or mixed',
+    price: 3.99,
+    category: 'beverages',
+    image: 'https://images.unsplash.com/photo-1523371054106-bbf80586c38c?q=80&w=1500&auto=format'
+  },
+  {
+    id: '14',
+    name: 'Cold Coffee',
+    description: 'Chilled coffee with ice cream',
+    price: 5.99,
+    category: 'beverages',
+    image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?q=80&w=1500&auto=format'
+  }
 ];
 
 const Menu: React.FC = () => {
@@ -78,7 +148,7 @@ const Menu: React.FC = () => {
     name: '',
     description: '',
     price: 0,
-    category: 'main',
+    category: 'southIndian',
     image: ''
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -118,7 +188,7 @@ const Menu: React.FC = () => {
       name: '',
       description: '',
       price: 0,
-      category: 'main',
+      category: 'southIndian',
       image: ''
     });
     
@@ -139,12 +209,27 @@ const Menu: React.FC = () => {
     ? menuItems 
     : menuItems.filter(item => item.category === activeCategory);
 
+  // Get category icon
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'southIndian':
+        return <Utensils className="h-4 w-4 mr-1" />;
+      case 'iceCream':
+        return <IceCreamBowl className="h-4 w-4 mr-1" />;
+      case 'beverages':
+        if (activeCategory === 'beverages') return <Droplet className="h-4 w-4 mr-1" />;
+        return <Coffee className="h-4 w-4 mr-1" />;
+      default:
+        return <Utensils className="h-4 w-4 mr-1" />;
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-10">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8">
         <div>
-          <h1 className="font-playfair text-3xl md:text-4xl font-bold text-navy">Restaurant Menu</h1>
-          <p className="text-gray-600 mt-2">Explore our exquisite culinary offerings</p>
+          <h1 className="font-playfair text-3xl md:text-4xl font-bold text-navy">KARUNADU RESTAURANT</h1>
+          <p className="text-gray-600 mt-2">Explore our authentic South Indian cuisine</p>
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -207,9 +292,9 @@ const Menu: React.FC = () => {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="starters">Starters</SelectItem>
-                    <SelectItem value="main">Main Course</SelectItem>
-                    <SelectItem value="desserts">Desserts</SelectItem>
+                    <SelectItem value="southIndian">South Indian</SelectItem>
+                    <SelectItem value="iceCream">Ice Cream</SelectItem>
+                    <SelectItem value="beverages">Beverages</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -248,14 +333,14 @@ const Menu: React.FC = () => {
             <TabsTrigger value="all" className="data-[state=active]:bg-gold data-[state=active]:text-white">
               All Items
             </TabsTrigger>
-            <TabsTrigger value="starters" className="data-[state=active]:bg-gold data-[state=active]:text-white">
-              Starters
+            <TabsTrigger value="southIndian" className="data-[state=active]:bg-gold data-[state=active]:text-white">
+              <Utensils className="h-4 w-4 mr-1" /> South Indian
             </TabsTrigger>
-            <TabsTrigger value="main" className="data-[state=active]:bg-gold data-[state=active]:text-white">
-              Main Course
+            <TabsTrigger value="iceCream" className="data-[state=active]:bg-gold data-[state=active]:text-white">
+              <IceCreamBowl className="h-4 w-4 mr-1" /> Ice Cream
             </TabsTrigger>
-            <TabsTrigger value="desserts" className="data-[state=active]:bg-gold data-[state=active]:text-white">
-              Desserts
+            <TabsTrigger value="beverages" className="data-[state=active]:bg-gold data-[state=active]:text-white">
+              <Coffee className="h-4 w-4 mr-1" /> Beverages
             </TabsTrigger>
           </TabsList>
         </div>
@@ -285,7 +370,7 @@ const Menu: React.FC = () => {
                     size="sm"
                     onClick={() => handleAddToOrder(item)}
                   >
-                    <Utensils className="h-4 w-4 mr-1" /> Add to Order
+                    {getCategoryIcon(item.category)} Add to Order
                   </Button>
                 </CardFooter>
               </Card>

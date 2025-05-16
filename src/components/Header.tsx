@@ -22,7 +22,7 @@ const Header: React.FC = () => {
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
             <h1 className="text-2xl font-playfair font-bold text-navy">
-              <span className="text-gold">Luxe</span> Hotel
+              <span className="text-gold">KARUNADU</span> RESTAURANT
             </h1>
           </Link>
         </div>
