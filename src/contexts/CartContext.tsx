@@ -8,18 +8,35 @@ export interface CartItem {
   quantity: number;
 }
 
+export interface BillData {
+  customerName: string;
+  tableNumber: string;
+  orderItems: CartItem[];
+  subtotal: number;
+  discount: number;
+  discountAmount: number;
+  tax: number;
+  total: number;
+  paymentMethod: string;
+  timestamp?: Date;
+}
+
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (item: Omit<CartItem, 'quantity'>) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
   updateQuantity: (id: string, quantity: number) => void;
+  billData: BillData | null;
+  setBillData: (data: BillData) => void;
+  clearBillData: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [billData, setBillData] = useState<BillData | null>(null);
 
   const addToCart = (item: Omit<CartItem, 'quantity'>) => {
     setCartItems((prevItems) => {
@@ -53,9 +70,22 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
   };
 
+  const clearBillData = () => {
+    setBillData(null);
+  };
+
   return (
     <CartContext.Provider 
-      value={{ cartItems, addToCart, removeFromCart, clearCart, updateQuantity }}
+      value={{ 
+        cartItems, 
+        addToCart, 
+        removeFromCart, 
+        clearCart, 
+        updateQuantity,
+        billData,
+        setBillData,
+        clearBillData
+      }}
     >
       {children}
     </CartContext.Provider>

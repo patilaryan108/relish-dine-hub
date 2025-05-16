@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Menu from "./pages/Menu";
 import Billing from "./pages/Billing";
+import BillView from "./pages/BillView";
 import NotFound from "./pages/NotFound";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -33,6 +34,7 @@ const App = () => (
                 <Route path="/register" element={<Register />} />
                 <Route path="/menu" element={<Menu />} />
                 <Route path="/billing" element={<Billing />} />
+                <Route path="/bill-view" element={<BillView />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

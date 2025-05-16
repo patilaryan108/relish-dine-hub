@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,13 +10,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { toast } from 'sonner';
 import { CreditCard, FileText, Trash2, ShoppingCart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
-
-interface OrderItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-}
 
 const menuItems = [
   { id: '1', name: 'Grilled Salmon', price: 24.99 },
@@ -27,7 +21,8 @@ const menuItems = [
 ];
 
 const Billing: React.FC = () => {
-  const { cartItems, addToCart, removeFromCart, updateQuantity, clearCart } = useCart();
+  const navigate = useNavigate();
+  const { cartItems, addToCart, removeFromCart, updateQuantity, clearCart, setBillData } = useCart();
   const [selectedItem, setSelectedItem] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [customerName, setCustomerName] = useState<string>('');
@@ -100,10 +95,8 @@ const Billing: React.FC = () => {
       return;
     }
     
-    toast.success("Bill generated successfully!");
-    
-    // Here, we'd normally send this data to our backend and generate a receipt
-    console.log({
+    // Create the bill data object
+    const billData = {
       customerName,
       tableNumber,
       orderItems: cartItems,
@@ -112,8 +105,15 @@ const Billing: React.FC = () => {
       discountAmount,
       tax,
       total,
-      paymentMethod
-    });
+      paymentMethod,
+      timestamp: new Date()
+    };
+    
+    // Save to context
+    setBillData(billData);
+    
+    // Navigate to bill view
+    navigate('/bill-view');
   };
   
   const handleClearBill = () => {
