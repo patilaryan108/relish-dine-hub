@@ -1,11 +1,20 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+
+// Create a user type to match what we'll store
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  role: 'customer' | 'staff' | 'owner';
+}
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +24,7 @@ const Register: React.FC = () => {
     confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -32,10 +42,33 @@ const Register: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Here we'd normally connect to MongoDB through Express API
-      // Since we don't have the backend connected yet, we'll simulate success
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      toast.success("Registration successful! You can now login.");
+      // Get existing users from localStorage or initialize empty array
+      const existingUsers = JSON.parse(localStorage.getItem('karunadu_users') || '[]');
+      
+      // Check if email is already registered
+      if (existingUsers.some((user: User) => user.email === formData.email)) {
+        toast.error("Email already registered");
+        setIsLoading(false);
+        return;
+      }
+      
+      // Create new user
+      const newUser: User = {
+        id: Date.now().toString(),
+        name: formData.name,
+        email: formData.email,
+        password: formData.password, // In a real app, this should be hashed
+        role: 'customer' // Default role for new registrations
+      };
+      
+      // Add to users array
+      existingUsers.push(newUser);
+      localStorage.setItem('karunadu_users', JSON.stringify(existingUsers));
+      
+      // Create user session
+      localStorage.setItem('karunadu_currentUser', JSON.stringify(newUser));
+      
+      toast.success("Registration successful!");
       
       // Reset form
       setFormData({
@@ -44,6 +77,9 @@ const Register: React.FC = () => {
         password: '',
         confirmPassword: ''
       });
+      
+      // Redirect to home page
+      navigate('/');
     } catch (error) {
       toast.error("Registration failed. Please try again.");
       console.error(error);
@@ -57,7 +93,7 @@ const Register: React.FC = () => {
       <Card className="w-full max-w-md shadow-lg border-gray-200">
         <CardHeader className="text-center">
           <CardTitle className="font-playfair text-2xl">Create an Account</CardTitle>
-          <CardDescription>Register to manage your hotel experience</CardDescription>
+          <CardDescription>Register to manage your restaurant experience</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

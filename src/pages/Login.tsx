@@ -8,6 +8,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 
+// User interface matching the one in Register.tsx
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  role: 'customer' | 'staff' | 'owner';
+}
+
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -31,16 +40,21 @@ const Login: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Here we'd normally connect to MongoDB through Express API
-      // Since we don't have the backend connected yet, we'll simulate success
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      // Get users from localStorage
+      const users = JSON.parse(localStorage.getItem('karunadu_users') || '[]');
       
-      // Demo credentials
-      if (formData.email === 'admin@luxehotel.com' && formData.password === 'password') {
-        toast.success("Login successful!");
+      // Find user by email
+      const user = users.find((u: User) => u.email === formData.email);
+      
+      // Check if user exists and password matches
+      if (user && user.password === formData.password) {
+        // Set current user
+        localStorage.setItem('karunadu_currentUser', JSON.stringify(user));
+        
+        toast.success(`Welcome back, ${user.name}!`);
         navigate('/');
       } else {
-        toast.error("Invalid email or password. Try admin@luxehotel.com / password");
+        toast.error("Invalid email or password.");
       }
     } catch (error) {
       toast.error("Login failed. Please try again.");
@@ -112,11 +126,6 @@ const Login: React.FC = () => {
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
-          
-          <div className="mt-4 text-center">
-            <p className="text-xs text-gray-500">Demo credentials:</p>
-            <p className="text-xs font-medium text-gray-700">admin@luxehotel.com / password</p>
-          </div>
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-500">
