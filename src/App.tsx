@@ -14,6 +14,7 @@ import Billing from "./pages/Billing";
 import BillView from "./pages/BillView";
 import Employee from "./pages/Employee";
 import Sales from "./pages/Sales";
+import DailySales from "./pages/DailySales";
 import NotFound from "./pages/NotFound";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -74,6 +75,7 @@ const App = () => {
                   <Route path="/bill-view" element={<BillView />} />
                   <Route path="/employee" element={<Employee />} />
                   <Route path="/sales" element={<Sales />} />
+                  <Route path="/daily-sales" element={<DailySales />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
